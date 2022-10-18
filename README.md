@@ -5,6 +5,13 @@ A near real-time wildfire API written in Python for storing and filtering therma
 The satellites and sensors can be changed by editing the API endpoint [here](https://firms.modaps.eosdis.nasa.gov/api/area).
 
 (readme still in progress)
+
+## Endpoints:
+
+`/api/nrt/wildfire`
+
+`/api/model`
+
 ## Run Locally
 
 Setup Postgres and PostGIS to store the satellite data.
