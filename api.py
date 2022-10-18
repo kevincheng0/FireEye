@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
-import json
 import filter_map
 import model
+import update_db
 
 app = Flask(__name__)
 
@@ -19,7 +19,7 @@ def wildfire():
     }
 
     if countries:
-        conn = filter_map.db_connect()
+        conn = update_db.db_connect()
         cursor = conn.cursor()
 
         if countries[0] == "*":
