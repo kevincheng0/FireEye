@@ -36,7 +36,6 @@ def fetch_data(url):
 
 def fetch_and_store(url):
     date = datetime.now().strftime('%Y-%m-%d')
-    file_name = f'{date}_results.json'
 
     conn = db_connect()
     cursor = conn.cursor()

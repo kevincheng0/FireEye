@@ -1,11 +1,7 @@
 import ast
 import logging
 import argparse
-import sys
-import os
-import psycopg2
-import psycopg2.extras
-import config
+import update_db
 from tqdm import tqdm
 
 def parse_args():
@@ -15,16 +11,6 @@ def parse_args():
     parser.add_argument('countries', metavar='countries', type=str, nargs='+',
                         help='Country codes to query')
     return parser.parse_args()
-
-def db_connect():
-    conn = psycopg2.connect(
-        host=config.host,
-        port=config.port,
-        database=config.database,
-        user=config.user,
-        password=config.password
-    )
-    return conn
 
 def db_points_within(countries, cursor, all_countries=False):
     points = []
@@ -103,7 +89,7 @@ if __name__ == '__main__':
 
     countries = ', '.join(map(lambda x: f"'{x.upper()}'", args.countries))
 
-    conn = db_connect()
+    conn = update_db.db_connect()
     cursor = conn.cursor()
     ret = db_points_within(countries, cursor)
     conn.close
