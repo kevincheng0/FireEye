@@ -1,7 +1,7 @@
 import math
 import sys
 
-# - Fuel particle - 
+# - Fuel particle -
 # heat_content = 0                      # h
 # tot_mineral_content = 0               # S_T, fraction!
 # eff_mineral_content = 0               # S_e, fraction!
