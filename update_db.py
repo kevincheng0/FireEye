@@ -18,6 +18,10 @@ def db_connect():
     )
     return conn
 
+def chunks(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
 def fetch_data(url):
     logging.info('Fetching data... %s', url)
     r = requests.get(url)
@@ -42,25 +46,19 @@ def fetch_and_store(url):
     cursor.execute('DELETE FROM points;')
     conn.commit()
 
-    template = '''
-        INSERT INTO points (%s) VALUES %s;
-    '''
-
     points = fetch_data(url)
+    values = []
     for point in points:
-        lat = point['latitude']
-        lng = point['longitude']
-        columns = ['geom'] + list(point.keys())[2:]
-        values = [f'Point({lng} {lat})'] + [point[column] for column in columns if column not in ['latitude', 'longitude', 'geom']]
+        values.append([x for x in point.values()])
 
-        cursor.execute(template, (AsIs(','.join(columns)), tuple(values)))
+    for value_chunk in chunks(values, 50):
+        args = ', '.join(f'(ST_SetSRID(ST_MakePoint({x[0]}, {x[1]}), 4326),' + cursor.mogrify('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', x).decode('utf-8') for x in value_chunk)
+        cursor.execute("INSERT INTO points VALUES " + args)
 
     conn.commit()
     conn.close()
 
 if __name__ == '__main__':
-    url = f'https://firms.modaps.eosdis.nasa.gov/api/area/csv/{config.key}/VIIRS_NOAA20_NRT/world/1'
+    url = f'https://firms.modaps.eosdis.nasa.gov/api/area/csv/{config.key}/VIIRS_NOAA20_NRT/world/2'
     fetch_and_store(url)
-
-
 

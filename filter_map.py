@@ -14,9 +14,12 @@ def parse_args():
 
 def db_points_within(countries, cursor, all_countries=False):
     points = []
+
     if all_countries:
         cursor.execute('''SELECT
-            ST_AsGeoJSON(points.geom),
+            points.geom,
+            points.lat,
+            points.lng,
             points.bright_ti4,
             points.scan,
             points.track,
@@ -36,8 +39,11 @@ def db_points_within(countries, cursor, all_countries=False):
         points.extend(cursor.fetchall())
     else:
         for country in countries:
+            print(country)
             cursor.execute('''SELECT
-                ST_AsGeoJSON(points.geom),
+                points.geom,
+                points.lat,
+                points.lng,
                 points.bright_ti4,
                 points.scan,
                 points.track,
@@ -57,23 +63,25 @@ def db_points_within(countries, cursor, all_countries=False):
             ''', (country,))
             points.extend(cursor.fetchall())
 
+    with open('log.txt', 'w') as f:
+        f.write(" ".join(points))
     ret = []
     for point in tqdm(points):
-        loc = ast.literal_eval(point[0])['coordinates']
         point_dict = {
-            'location': loc,
-            'bright_ti4': point[1],
-            'scan': point[2],
-            'track': point[3],
-            'acq_date': point[4],
-            'acq_time': point[5],
-            'satellite': point[6],
-            'instrument': point[7],
-            'confidence': point[8],
-            'version': point[9],
-            'bright_ti5': point[10],
-            'frp': point[11],
-            'daynight': point[12],
+            'lat': point[1],
+            'lng': point[2],
+            'bright_ti4': point[3],
+            'scan': point[4],
+            'track': point[5],
+            'acq_date': point[6],
+            'acq_time': point[7],
+            'satellite': point[8],
+            'instrument': point[9],
+            'confidence': point[10],
+            'version': point[11],
+            'bright_ti5': point[12],
+            'frp': point[13],
+            'daynight': point[14],
         }
         ret.append(point_dict)
 
@@ -87,12 +95,11 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.DEBUG)
 
-    countries = ', '.join(map(lambda x: f"'{x.upper()}'", args.countries))
+    countries = map(lambda x: f"{x.upper()}", args.countries)
 
     conn = update_db.db_connect()
     cursor = conn.cursor()
-    ret = db_points_within(countries, cursor)
+    ret = db_points_within(countries, cursor, False)
     conn.close
 
     print(ret)
-
