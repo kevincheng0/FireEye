@@ -63,8 +63,6 @@ def db_points_within(countries, cursor, all_countries=False):
             ''', (country,))
             points.extend(cursor.fetchall())
 
-    with open('log.txt', 'w') as f:
-        f.write(" ".join(points))
     ret = []
     for point in tqdm(points):
         point_dict = {
