@@ -14,7 +14,6 @@ def parse_args():
 
 def db_points_within(countries, cursor, all_countries=False):
     points = []
-
     if all_countries:
         cursor.execute('''SELECT
             points.geom,
@@ -32,9 +31,7 @@ def db_points_within(countries, cursor, all_countries=False):
             points.bright_ti5,
             points.frp,
             points.daynight
-            FROM points
-            JOIN countries
-                ON ST_WITHIN(points.geom, countries.geom);
+            FROM points;
         ''')
         points.extend(cursor.fetchall())
     else:
@@ -97,7 +94,8 @@ if __name__ == '__main__':
 
     conn = update_db.db_connect()
     cursor = conn.cursor()
-    ret = db_points_within(countries, cursor, False)
+    ret = db_points_within(countries, cursor, True)
     conn.close
 
     print(ret)
+
